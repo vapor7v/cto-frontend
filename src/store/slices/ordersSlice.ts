@@ -20,7 +20,7 @@ const initialState: OrdersState = {
   dashboardStats: null,
 };
 
-// Async thunks for API operations
+// Async thunks for API operations - NOT IMPLEMENTED YET
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async (params: {
@@ -34,10 +34,7 @@ export const fetchOrders = createAsyncThunk(
       page: params.page,
       size: params.size,
     });
-    return {
-      orders: response.data.content,
-      branchId: params.branchId,
-    };
+    return response.data; // Will throw error since not implemented
   }
 );
 
@@ -48,7 +45,7 @@ export const updateOrderStatus = createAsyncThunk(
     statusData: OrderStatusUpdateRequest;
   }) => {
     const response = await apiService.updateOrderStatus(params.orderId, params.statusData);
-    return response.data;
+    return response.data; // Will throw error since not implemented
   }
 );
 
@@ -59,7 +56,7 @@ export const fetchDashboardStats = createAsyncThunk(
     dateRange?: string;
   }) => {
     const response = await apiService.getDashboardStats(params.branchId, params.dateRange);
-    return response.data;
+    return response.data; // Will throw error since not implemented
   }
 );
 
@@ -74,7 +71,7 @@ export const fetchTopItems = createAsyncThunk(
       period: params.period,
       limit: params.limit,
     });
-    return response.data;
+    return response.data; // Will throw error since not implemented
   }
 );
 

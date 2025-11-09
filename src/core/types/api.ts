@@ -18,24 +18,29 @@ export interface PaginatedResponse<T> {
   last: boolean;
 }
 
-// Vendor and Branch types
+// Vendor and Branch types (matching backend DTOs)
 export interface Vendor {
   vendorId: number;
-  vendorName: string;
-  email: string;
-  phone: string;
-  businessType: string;
-  isActive: boolean;
+  companyName: string;
+  brandName: string;
+  legalEntityName: string;
+  companyEmail: string;
+  companyPhone: string;
+  panNumber?: string;
+  gstNumber?: string;
+  images?: Record<string, any>; // Map<String, Object>
+  metadata?: Record<string, any>; // Map<String, Object>
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 export interface Address {
-  street: string;
-  area: string;
-  city: string;
-  state: string;
-  pincode: string;
+  street?: string;
+  area?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
   latitude?: number;
   longitude?: number;
 }
@@ -54,20 +59,31 @@ export interface Branch {
   branchId: number;
   vendorId: number;
   branchName: string;
-  address: Address;
+  branchCode?: string;
+  address?: Record<string, any>; // Map<String, Object>
+  latitude?: number;
+  longitude?: number;
+  city?: string;
   branchPhone: string;
   branchEmail: string;
+  branchManagerName?: string;
+  onboardingStatus?: string;
   isActive: boolean;
   isOpen: boolean;
-  onboardingStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | 'DOCUMENTS_REQUIRED';
-  operatingHours?: Record<string, TimeSlot[]>;
+  preferences?: Record<string, any>; // Map<String, Object>
+  operatingHours?: Record<string, any>; // Map<String, Object>
+  images?: Record<string, any>; // Map<String, Object>
+  metadata?: Record<string, any>; // Map<String, Object>
   createdAt: string;
   updatedAt: string;
 }
 
 export interface BranchCreateRequest {
   branchName: string;
-  address: Address;
+  address?: Record<string, any>; // Map<String, Object>
+  latitude?: number;
+  longitude?: number;
+  city?: string;
   branchPhone: string;
   branchEmail: string;
 }
@@ -131,31 +147,31 @@ export interface DocumentResponse {
   updatedAt: string;
 }
 
-// Menu Item types
+// Menu Item types (matching backend DTOs)
 export interface MenuItem {
-  menuItemId: string;
+  menuItemId: number; // Changed from string to number (Long)
   branchId: number;
   name: string;
   description: string;
   price: number;
   category: string;
-  imageUrl?: string;
   isAvailable: boolean;
   preparationTimeMinutes: number;
-  tags: string[];
+  images?: Record<string, any>; // Map<String, Object>
+  metadata?: Record<string, any>; // Map<String, Object>
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 export interface MenuItemCreateRequest {
   name: string;
-  description: string;
+  description?: string;
   price: number;
   category: string;
-  imageUrl?: string;
-  isAvailable: boolean;
   preparationTimeMinutes: number;
-  tags: string[];
+  metadata?: Record<string, any>; // Map<String, Object>
+  tags?: string[];
 }
 
 export interface MenuItemUpdateRequest {
@@ -163,28 +179,30 @@ export interface MenuItemUpdateRequest {
   description?: string;
   price?: number;
   category?: string;
-  imageUrl?: string;
   isAvailable?: boolean;
   preparationTimeMinutes?: number;
+  metadata?: Record<string, any>; // Map<String, Object>
   tags?: string[];
 }
 
 export interface MenuItemResponse {
-  menuItemId: string;
+  menuItemId: number; // Changed from string to number (Long)
   branchId: number;
   name: string;
   description: string;
   price: number;
   category: string;
-  imageUrl?: string;
   isAvailable: boolean;
   preparationTimeMinutes: number;
-  tags: string[];
+  images?: Record<string, any>; // Map<String, Object>
+  metadata?: Record<string, any>; // Map<String, Object>
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
 
-// Order types
+// Order types - NOT IMPLEMENTED YET IN BACKEND
+// These types are placeholders for future implementation
 export interface Order {
   orderId: string;
   branchId: number;
@@ -216,7 +234,7 @@ export interface OrderStatusUpdateRequest {
   estimatedDeliveryTime?: string;
 }
 
-// Dashboard/Analytics types
+// Dashboard/Analytics types - PLACEHOLDERS FOR FUTURE IMPLEMENTATION
 export interface DashboardStats {
   revenue: {
     today: number;

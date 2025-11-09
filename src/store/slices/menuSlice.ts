@@ -20,30 +20,18 @@ const initialState: MenuState = {
   currentBranchId: null,
 };
 
-// Async thunks for API operations
+// Async thunks for API operations (ONLY IMPLEMENTED ENDPOINTS)
 export const fetchMenuItems = createAsyncThunk(
   'menu/fetchMenuItems',
   async (params: {
     branchId: number;
     category?: string;
-    availableOnly?: boolean;
   }) => {
     const response = await apiService.getBranchMenuItems(
       params.branchId,
-      { category: params.category, availableOnly: params.availableOnly }
+      { category: params.category }
     );
-    return {
-      items: response.data.content,
-      branchId: params.branchId,
-    };
-  }
-);
-
-export const fetchMenuItemCategories = createAsyncThunk(
-  'menu/fetchCategories',
-  async (branchId: number) => {
-    const response = await apiService.getMenuItemCategories(branchId);
-    return response.data;
+    return response.data; // Backend returns List<MenuItemResponse>, not paginated
   }
 );
 
@@ -61,7 +49,7 @@ export const createMenuItem = createAsyncThunk(
 export const updateMenuItem = createAsyncThunk(
   'menu/updateMenuItem',
   async (params: {
-    menuItemId: string;
+    menuItemId: number; // Changed from string to number
     menuItemData: MenuItemUpdateRequest;
   }) => {
     const response = await apiService.updateMenuItem(params.menuItemId, params.menuItemData);
@@ -71,9 +59,18 @@ export const updateMenuItem = createAsyncThunk(
 
 export const deleteMenuItem = createAsyncThunk(
   'menu/deleteMenuItem',
-  async (menuItemId: string) => {
+  async (menuItemId: number) => { // Changed from string to number
     await apiService.deleteMenuItem(menuItemId);
     return menuItemId;
+  }
+);
+
+// NOTE: The following thunks are NOT implemented yet
+export const fetchMenuItemCategories = createAsyncThunk(
+  'menu/fetchCategories',
+  async (branchId: number) => {
+    const response = await apiService.getMenuItemCategories(branchId);
+    return response.data;
   }
 );
 
@@ -84,7 +81,7 @@ export const searchMenuItems = createAsyncThunk(
     query: string;
   }) => {
     const response = await apiService.searchMenuItems(params.branchId, params.query);
-    return response.data.content;
+    return response.data;
   }
 );
 

@@ -8,10 +8,10 @@ import {
   PaginatedResponse
 } from '../types/api';
 
-// Menu API Service
+// Menu API Service - ONLY IMPLEMENTED ENDPOINTS
 export class MenuApiService {
   
-  // Menu Item endpoints
+  // Menu Item endpoints (matching backend MenuController)
   async createMenuItem(branchId: number, menuItemData: MenuItemCreateRequest): Promise<ApiResponse<MenuItemResponse>> {
     const response = await httpClient.post(`/menu-items/branches/${branchId}`, menuItemData);
     return {
@@ -21,7 +21,7 @@ export class MenuApiService {
     };
   }
 
-  async getMenuItem(menuItemId: string): Promise<ApiResponse<MenuItemResponse>> {
+  async getMenuItem(menuItemId: number): Promise<ApiResponse<MenuItemResponse>> {
     const response = await httpClient.get(`/menu-items/${menuItemId}`);
     return {
       data: response.data,
@@ -30,7 +30,7 @@ export class MenuApiService {
     };
   }
 
-  async updateMenuItem(menuItemId: string, menuItemData: MenuItemUpdateRequest): Promise<ApiResponse<MenuItemResponse>> {
+  async updateMenuItem(menuItemId: number, menuItemData: MenuItemUpdateRequest): Promise<ApiResponse<MenuItemResponse>> {
     const response = await httpClient.put(`/menu-items/${menuItemId}`, menuItemData);
     return {
       data: response.data,
@@ -39,7 +39,7 @@ export class MenuApiService {
     };
   }
 
-  async deleteMenuItem(menuItemId: string): Promise<ApiResponse<void>> {
+  async deleteMenuItem(menuItemId: number): Promise<ApiResponse<void>> {
     const response = await httpClient.delete(`/menu-items/${menuItemId}`);
     return {
       data: undefined,
@@ -52,13 +52,11 @@ export class MenuApiService {
     branchId: number,
     page: number = 0,
     size: number = 50,
-    category?: string,
-    availableOnly: boolean = true
-  ): Promise<ApiResponse<PaginatedResponse<MenuItemResponse>>> {
+    category?: string
+  ): Promise<ApiResponse<MenuItemResponse[]>> {
     const params = new URLSearchParams({
       page: page.toString(),
       size: size.toString(),
-      availableOnly: availableOnly.toString(),
     });
     
     if (category) {
@@ -67,111 +65,68 @@ export class MenuApiService {
 
     const response = await httpClient.get(`/menu-items/branches/${branchId}?${params.toString()}`);
     return {
-      data: response.data,
+      data: response.data, // Backend returns List<MenuItemResponse>, not paginated
       success: true,
       status: response.status,
     };
   }
+
+  // NOTE: The following endpoints are NOT implemented in backend yet
+  // These are placeholders for future implementation
 
   async searchMenuItems(
     branchId: number,
     query: string,
     page: number = 0,
     size: number = 20
-  ): Promise<ApiResponse<PaginatedResponse<MenuItemResponse>>> {
-    const params = new URLSearchParams({
-      query,
-      page: page.toString(),
-      size: size.toString(),
-    });
-
-    const response = await httpClient.get(`/menu-items/branches/${branchId}/search?${params.toString()}`);
-    return {
-      data: response.data,
-      success: true,
-      status: response.status,
-    };
+  ): Promise<ApiResponse<MenuItemResponse[]>> {
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Search functionality not implemented in backend yet');
   }
 
   async getMenuItemCategories(branchId: number): Promise<ApiResponse<string[]>> {
-    const response = await httpClient.get(`/menu-items/branches/${branchId}/categories`);
-    return {
-      data: response.data,
-      success: true,
-      status: response.status,
-    };
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Categories endpoint not implemented in backend yet');
   }
 
   async bulkUpdateMenuItemAvailability(
-    menuItemIds: string[],
+    menuItemIds: number[],
     isAvailable: boolean
   ): Promise<ApiResponse<MenuItemResponse[]>> {
-    const response = await httpClient.patch('/menu-items/bulk/availability', {
-      menuItemIds,
-      isAvailable,
-    });
-    return {
-      data: response.data,
-      success: true,
-      status: response.status,
-    };
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Bulk update functionality not implemented in backend yet');
   }
 
-  async duplicateMenuItem(menuItemId: string, newName?: string): Promise<ApiResponse<MenuItemResponse>> {
-    const response = await httpClient.post(`/menu-items/${menuItemId}/duplicate`, {
-      newName,
-    });
-    return {
-      data: response.data,
-      success: true,
-      status: response.status,
-    };
+  async duplicateMenuItem(menuItemId: number, newName?: string): Promise<ApiResponse<MenuItemResponse>> {
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Duplicate functionality not implemented in backend yet');
   }
 
-  // Menu analytics
   async getPopularMenuItems(
     branchId: number,
     period: 'week' | 'month' | 'quarter' = 'month',
     limit: number = 10
   ): Promise<ApiResponse<MenuItemResponse[]>> {
-    const params = new URLSearchParams({
-      period,
-      limit: limit.toString(),
-    });
-
-    const response = await httpClient.get(`/menu-items/branches/${branchId}/popular?${params.toString()}`);
-    return {
-      data: response.data,
-      success: true,
-      status: response.status,
-    };
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Popular items endpoint not implemented in backend yet');
   }
 
   async getMenuAnalytics(branchId: number, period: 'week' | 'month' | 'quarter' = 'month') {
-    const params = new URLSearchParams({ period });
-    const response = await httpClient.get(`/menu-items/branches/${branchId}/analytics?${params.toString()}`);
-    return {
-      data: response.data,
-      success: true,
-      status: response.status,
-    };
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Menu analytics endpoint not implemented in backend yet');
   }
 
-  // Menu item image management
   async uploadMenuItemImage(
-    menuItemId: string,
+    menuItemId: number,
     file: { uri: string; name: string; type: string }
   ) {
-    return httpClient.uploadFile(`/menu-items/${menuItemId}/image`, file);
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Menu item image upload not implemented in backend yet');
   }
 
-  async deleteMenuItemImage(menuItemId: string): Promise<ApiResponse<void>> {
-    const response = await httpClient.delete(`/menu-items/${menuItemId}/image`);
-    return {
-      data: undefined,
-      success: true,
-      status: response.status,
-    };
+  async deleteMenuItemImage(menuItemId: number): Promise<ApiResponse<void>> {
+    // NOT IMPLEMENTED - This endpoint doesn't exist in backend yet
+    throw new Error('Menu item image deletion not implemented in backend yet');
   }
 }
 
