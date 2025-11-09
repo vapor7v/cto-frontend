@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -250,5 +251,255 @@ public class BranchController {
         UUID requestingUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         
         return availabilityService.toggleBranchStatus(branchId, request, requestingUserId);
+    }
+    
+    @Operation(
+        summary = "Set branch operating hours",
+        description = "Updates the branch operating hours with multiple time slots per day"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Operating hours successfully updated",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = BranchResponse.class),
+                examples = @ExampleObject(
+                    value = "{\"branchId\": 1, \"branchName\": \"Chai Express - Koramangala\", \"operatingHours\": {\"MONDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}]}}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid operating hours data",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ValidationErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Not authorized to update this branch",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Branch not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    @PutMapping("/branches/{branchId}/operating-hours")
+    public BranchResponse updateOperatingHours(
+            @Parameter(description = "Branch ID", example = "1", required = true)
+            @PathVariable Long branchId,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "Operating hours for each day of the week with time slots",
+                required = true,
+                content = @Content(
+                    schema = @Schema(implementation = OperatingHoursRequest.class),
+                    examples = @ExampleObject(
+                        value = "{\"hours\": {\"MONDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}], \"TUESDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}], \"WEDNESDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}], \"THURSDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}], \"FRIDAY\": [{\"open\": \"09:00\", \"close\": \"23:00\"}], \"SATURDAY\": [{\"open\": \"09:00\", \"close\": \"23:00\"}], \"SUNDAY\": [{\"open\": \"10:00\", \"close\": \"22:00\"}]}}"
+                    )
+                )
+            )
+            @Valid @RequestBody OperatingHoursRequest request) {
+        
+        log.info("Update operating hours request for branch: {}", branchId);
+        
+        // For now, using a hardcoded userId. In production, this would come from authentication
+        UUID requestingUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        
+        return availabilityService.updateOperatingHours(branchId, request, requestingUserId);
+    }
+    
+    @Operation(
+        summary = "Get branch operating hours",
+        description = "Retrieves the current operating hours for a branch"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Operating hours retrieved successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = OperatingHoursResponse.class),
+                examples = @ExampleObject(
+                    value = "{\"branchId\": 1, \"operatingHours\": {\"MONDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}], \"TUESDAY\": [{\"open\": \"09:00\", \"close\": \"22:00\"}], \"SUNDAY\": [{\"open\": \"10:00\", \"close\": \"22:00\"}]}, \"isOpen\": true}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Branch not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    @GetMapping("/branches/{branchId}/operating-hours")
+    public OperatingHoursResponse getOperatingHours(
+            @Parameter(description = "Branch ID", example = "1", required = true)
+            @PathVariable Long branchId) {
+        
+        log.info("Get operating hours request for branch: {}", branchId);
+        
+        BranchResponse branch = branchService.getBranch(branchId);
+        return OperatingHoursResponse.builder()
+            .branchId(branch.getBranchId())
+            .operatingHours(branch.getOperatingHours())
+            .isOpen(branch.getIsOpen())
+            .build();
+    }
+    
+    @Operation(
+        summary = "Check branch availability",
+        description = "Checks if the branch is currently open and within operating hours"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Availability information retrieved successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = BranchAvailabilityResponse.class),
+                examples = @ExampleObject(
+                    value = "{\"branchId\": 1, \"isOpen\": true, \"isActive\": true, \"isWithinOperatingHours\": true, \"currentStatus\": \"OPEN\", \"nextCloseTime\": \"22:00\"}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Branch not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    @GetMapping("/branches/{branchId}/availability")
+    public BranchAvailabilityResponse checkAvailability(
+            @Parameter(description = "Branch ID", example = "1", required = true)
+            @PathVariable Long branchId) {
+        
+        log.info("Check availability request for branch: {}", branchId);
+        
+        return availabilityService.checkAvailability(branchId);
+    }
+    
+    @Operation(
+        summary = "Upload branch document",
+        description = "Uploads a verification document for a branch (FSSAI, GST, Shop Act, ID Proof, etc.)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Document successfully uploaded",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = DocumentResponse.class),
+                examples = @ExampleObject(
+                    value = "{\"documentId\": 1, \"branchId\": 1, \"documentType\": \"FSSAI\", \"documentNumber\": \"12345678901234\", \"verificationStatus\": \"PENDING\", \"createdAt\": \"2024-11-08T12:30:45\"}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid document data",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ValidationErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Not authorized to upload documents for this branch",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Branch not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    @PostMapping("/branches/{branchId}/documents")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DocumentResponse uploadDocument(
+            @Parameter(description = "Branch ID", example = "1", required = true)
+            @PathVariable Long branchId,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "Document upload details",
+                required = true,
+                content = @Content(
+                    schema = @Schema(implementation = DocumentUploadRequest.class),
+                    examples = @ExampleObject(
+                        value = "{\"documentType\": \"FSSAI\", \"documentNumber\": \"12345678901234\", \"issueDate\": \"2024-01-01\", \"expiryDate\": \"2029-01-01\", \"fileUrl\": \"https://s3.amazonaws.com/tea-snacks/branches/1/fssai.pdf\"}"
+                    )
+                )
+            )
+            @Valid @RequestBody DocumentUploadRequest request) {
+        
+        log.info("Upload document request for branch: {}", branchId);
+        
+        // For now, using a hardcoded userId. In production, this would come from authentication
+        UUID requestingUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        
+        return branchService.uploadDocument(branchId, request.getDocumentType(), request.getDocumentNumber(),
+            request.getIssueDate(), request.getExpiryDate(), request.getFileUrl(), requestingUserId);
+    }
+    
+    @Operation(
+        summary = "Get branch documents",
+        description = "Retrieves all documents uploaded for a branch"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Documents retrieved successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = DocumentResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Not authorized to view documents for this branch",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Branch not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    @GetMapping("/branches/{branchId}/documents")
+    public List<DocumentResponse> getDocuments(
+            @Parameter(description = "Branch ID", example = "1", required = true)
+            @PathVariable Long branchId) {
+        
+        log.info("Get documents request for branch: {}", branchId);
+        
+        // For now, using a hardcoded userId. In production, this would come from authentication
+        UUID requestingUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        
+        return branchService.getDocuments(branchId, requestingUserId);
     }
 }

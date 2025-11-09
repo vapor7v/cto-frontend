@@ -21,4 +21,6 @@ public class DocumentUploadRequest {
     private LocalDate issueDate;
     
     private LocalDate expiryDate;
+    
+    private String fileUrl;
 }
