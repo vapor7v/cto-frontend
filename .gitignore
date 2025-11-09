@@ -68,3 +68,28 @@ temp/
 
 # EAS Build
 eas.json
+
+# Gradle
+.gradle/
+build/
+*.gradle.kts
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+*.iml
+out/
+
+# macOS
+.DS_Store
+
+# IntelliJ IDEA
+*.iws
+*.ipr
+
+# VS Code
+settings.json
