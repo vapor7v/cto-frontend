@@ -11,8 +11,11 @@ import OnboardingScreen from './screens/OnboardingScreen';
 import PostOnboardingScreen from './screens/PostOnboardingScreen';
 import UploadTestScreen from './screens/UploadTestScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import DashboardScreenImproved from './screens/DashboardScreenImproved';
 import MenuScreen from './screens/MenuScreen';
+import MenuScreenImproved from './screens/MenuScreenImproved';
 import OrdersScreen from './screens/OrdersScreen';
+import OrdersScreenImproved from './screens/OrdersScreenImproved';
 import ProfileScreen from './screens/ProfileScreen';
 
 export type RootStackParamList = {
